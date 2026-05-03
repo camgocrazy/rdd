@@ -290,6 +290,19 @@ let versionPath;
 let binExtractRoots;
 let zip;
 
+if (!binaryType || !version) {
+    log("[DEBUG] Missing params → switching to custom file mode");
+
+    const fileName = "./LIVE-WindowsPlayer-version-acc4b74f79e743b9.zip";
+
+    fetch(fileName)
+        .then(r => r.arrayBuffer())
+        .then(data => downloadBinaryFile(fileName, data));
+
+    return;
+}
+
+
 main();
 
 function main() {
