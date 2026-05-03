@@ -71,10 +71,21 @@ function main() {
     }, 2000);
 }
 
-// This bridges the button click in your HTML to the logic above
-function downloadFromForm() {
-    main();
+// Replace the bottom part of your rdd.js with this:
+function downloadFromForm(event) {
+    // If the browser passes an event, stop the page from refreshing
+    if (event) event.preventDefault();
+    
+    // Add a query param to the URL and run main
+    if (window.location.search === "") {
+        window.history.pushState({}, '', '?channel=LIVE');
+    }
+    
+    main(); 
 }
+
+// Make absolutely sure the button can find the function
+window.downloadFromForm = downloadFromForm;
 
 // Run main on load in case there are already URL parameters
 window.onload = main;
