@@ -47,7 +47,8 @@ function main() {
 
         const fileName = "LIVE-WindowsPlayer-version-acc4b74f79e743b9.zip";
 
-        fetch(fileName)
+// Change this line in your fetch block:
+fetch("./" + fileName)
             .then(res => res.arrayBuffer())
             .then(data => {
                 downloadBinaryFile(fileName, data);
@@ -59,4 +60,7 @@ function main() {
     }, 2000);
 }
 
-main();
+/* Add this to the very end of your rdd.js file */
+function downloadFromForm() {
+    main(); 
+}
